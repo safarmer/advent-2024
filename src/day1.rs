@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 pub fn day1a(lines: &Vec<String>) -> i32 {
     let to_int = |s: &str| s.trim().parse::<i32>().unwrap();
 
@@ -21,23 +23,28 @@ pub fn day1a(lines: &Vec<String>) -> i32 {
     sum
 }
 
-pub fn day1b() {
-    println!("Day 1a");
+pub fn day1b(lines: &Vec<String>) -> i32 {
+    let to_int = |s: &str| s.trim().parse::<i32>().unwrap();
+
+    let mut ls: Vec<i32> = vec![];
+    let mut rs = HashMap::new();
+
+    for line in lines {
+        if let Some((l, r)) = line.split_once(' ').map(|(x, y)| (to_int(x), to_int(y))) {
+            ls.push(l);
+            rs.entry(r).and_modify(|x| *x += 1).or_insert(1);
+        }
+    }
+
+
+    ls.iter().map(|l| {l * rs.get(&l).map_or(0, |x| *x) }).sum()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    const IN_1A: &str = include_str!("data/1a.txt");
-
-    fn day1_out(step: &str, i: i32) {
-        println!("Day 1 - {:<6}: {}", step, i);
-    }
-
-    #[test]
-    fn simple_input_1a() {
-        let input = r#"
+    const IN_SAMPLE: &str = r#"
         3   4
         4   3
         2   5
@@ -45,13 +52,38 @@ mod tests {
         3   9
         3   3
         "#;
-        let lines: Vec<String> = input.lines().map(|i| i.trim().to_string()).collect();
-        day1_out("sample", day1a(&lines));
+
+    const IN_FILE: &str = include_str!("data/day1.txt");
+
+    fn day1_out(step: &str, i: i32) {
+        println!("{:<10}: {}", step, i);
     }
 
     #[test]
-    fn day1a_1a() {
-        let lines: Vec<String> = IN_1A.lines().map(|i| i.trim().to_string()).collect();
-        day1_out("1a", day1a(&lines));
+    fn day1a_sample() {
+        let lines: Vec<String> = IN_SAMPLE.lines().map(|i| i.trim().to_string()).collect();
+        let out = day1a(&lines);
+        day1_out("1a sample", out);
+        assert_eq!(out, 11);
+    }
+
+    #[test]
+    fn day1a_input() {
+        let lines: Vec<String> = IN_FILE.lines().map(|i| i.trim().to_string()).collect();
+        day1_out("1a input", day1a(&lines));
+    }
+
+    #[test]
+    fn day1b_sample() {
+        let lines: Vec<String> = IN_SAMPLE.lines().map(|i| i.trim().to_string()).collect();
+        let out = day1b(&lines);
+        day1_out("1b sample", out);
+        assert_eq!(out, 31);
+    }
+
+    #[test]
+    fn day1b_input() {
+        let lines: Vec<String> = IN_FILE.lines().map(|i| i.trim().to_string()).collect();
+        day1_out("1b input", day1b(&lines));
     }
 }
